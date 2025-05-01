@@ -1,43 +1,19 @@
-# Project-specific ignores
-HELP.md
+# Build artifacts
 target/
-
-# Maven wrapper (keep the wrapper JAR, ignore other Maven files if needed)
-!.mvn/wrapper/maven-wrapper.jar
-.mvn/
-
-# Build output directories
 build/
 dist/
 
-# IDE and editor-specific files
-### STS/Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Maven wrapper
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
 
-### IntelliJ IDEA ###
+# IDE-specific files
 .idea/
-*.iws
 *.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-### VS Code ###
+.classpath
+.project
+.settings/
 .vscode/
-
-# OS-specific files
-.DS_Store
 
 # Logs and temporary files
 *.log
@@ -45,5 +21,5 @@ dist/
 *.bak
 *.swp
 
-# Dependency directories (if any)
-dependency-reduced-pom.xml
+# OS-specific files
+.DS_Store

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - product-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - app-network
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    depends_on:
+      product-service:
+        condition: service_started
+    environment:
+      - PRODUCT_SERVICE_URL=http://product-service:8080/products
+    volumes:
+      - order-data:/app/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+volumes:
+  product-data:
+  order-data:
