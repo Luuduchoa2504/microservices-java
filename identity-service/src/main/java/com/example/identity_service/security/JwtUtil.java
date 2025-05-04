@@ -5,12 +5,20 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    // Hardcoded secret key (Base64 encoded to ensure sufficient length for HS512)
+    private final String secret = "dGhpc2lzYXZlcnlsb25nc2VjcmV0a2V5dGhhdGlzYXQbGVhc3QzMmJ5dGVz"; // Replace with your own
+    private final Key key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
     private final long expirationTime = 1000 * 60 * 60; // 1 hour
+
+    public JwtUtil() {
+        // Log the secret key on startup for debugging (remove in production)
+        System.out.println("Identity Service JwtUtil initialized with secret: " + secret);
+    }
 
     public String generateToken(String username, String role) {
         return Jwts.builder()

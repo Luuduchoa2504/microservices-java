@@ -4,6 +4,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import lombok.extern.slf4j.Slf4j;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -12,7 +13,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.stream.Collectors;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -39,14 +39,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             username, null, roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList())
                     );
                     SecurityContextHolder.getContext().setAuthentication(auth);
+                    log.info("Security context set with authentication: {}", SecurityContextHolder.getContext().getAuthentication());
                 } else {
                     log.warn("Token validation failed: Invalid token");
                 }
             } catch (Exception e) {
-                log.error("Token validation failed with exception: {}", e.getMessage());
+                log.error("Token validation failed with exception: {}", e.getMessage(), e);
             }
         } else {
-            log.warn("No Authorization header or invalid format");
+            log.debug("No Authorization header or invalid format");
         }
         filterChain.doFilter(request, response);
     }
