@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +17,7 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class ProductService {
+
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
@@ -27,49 +27,31 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<ProductDTO> getProductById(Long id) {
+    public ProductDTO getProduct(Long id) {
         return productRepository.findById(id)
-                .map(productMapper::toDTO);
+                .map(productMapper::toDTO)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + id));
     }
 
     public ProductDTO createProduct(ProductDTO productDTO) {
         Product product = productMapper.toEntity(productDTO);
-        Product savedProduct = productRepository.save(product);
-        return productMapper.toDTO(savedProduct);
+        return productMapper.toDTO(productRepository.save(product));
     }
 
-    public Optional<ProductDTO> updateProduct(Long id, ProductDTO updatedProductDTO) {
-        Optional<Product> existingProduct = productRepository.findById(id);
-        if (existingProduct.isPresent()) {
-            Product product = existingProduct.get();
-            product.setName(updatedProductDTO.getName());
-            product.setPrice(updatedProductDTO.getPrice());
-            product.setQuantity(updatedProductDTO.getQuantity());
-            Product updatedProduct = productRepository.save(product);
-            return Optional.of(productMapper.toDTO(updatedProduct));
-        }
-        return Optional.empty();
+    public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
+        Product existing = productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + id));
+        existing.setName(productDTO.getName());
+        existing.setPrice(productDTO.getPrice());
+        existing.setQuantity(productDTO.getQuantity());
+        existing.setAgeRestricted(productDTO.isAgeRestricted());
+        return productMapper.toDTO(productRepository.save(existing));
     }
 
-    public boolean deleteProduct(Long id) {
-        if (productRepository.existsById(id)) {
-            productRepository.deleteById(id);
-            return true;
+    public void deleteProduct(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new IllegalArgumentException("Product not found with id: " + id);
         }
-        return false;
-    }
-
-    public ProductDTO updateQuantity(Long id, int quantity) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-        if (quantity < 0) {
-            throw new IllegalArgumentException("Quantity cannot be negative");
-        }
-        if (product.getQuantity() < quantity) {
-            throw new IllegalArgumentException("Not enough stock available");
-        }
-        product.setQuantity(product.getQuantity() - quantity);
-        Product updatedProduct = productRepository.save(product);
-        return productMapper.toDTO(updatedProduct);
+        productRepository.deleteById(id);
     }
 }

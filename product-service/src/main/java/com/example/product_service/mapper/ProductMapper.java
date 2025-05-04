@@ -12,8 +12,7 @@ import org.mapstruct.factory.Mappers;
         unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface ProductMapper {
-    ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
-
     ProductDTO toDTO(Product product);
+
     Product toEntity(ProductDTO productDTO);
 }
